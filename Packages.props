@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildThisFileFullPath);$(MSBuildAllProjects)</MSBuildAllProjects>
+  </PropertyGroup>
+
+  <ItemGroup Label="Package Versions used by this repository">  
+    <!--
+      When referencing a new package, update this list with a matching Include and the desired Version.  When updating
+      a package, remove the Version from an individual project and update the Version in this file instead.
+      Use square brackets around the Version, otherwise it will use the provided Version as just a min Version.
+    -->
+    <PackageReference Update="McMaster.Extensions.CommandLineUtils" Version="[2.4.2]" />
+    <PackageReference Update="Microsoft.Build" Version="[16.4.0-preview-19522-01]" />
+    <PackageReference Update="Microsoft.Build.Framework" Version="[16.4.0-preview-19522-01]" />
+    <PackageReference Update="Microsoft.Build.Locator" Version="[1.2.6]" />
+    <PackageReference Update="Microsoft.Build.Prediction" Version="[0.3.0]" />
+    <PackageReference Update="Microsoft.Build.Tasks.Core" Version="[16.4.0-preview-19522-01]" />
+    <PackageReference Update="Microsoft.Build.Utilities.Core" Version="[16.4.0-preview-19522-01]" />
+    <PackageReference Update="Microsoft.NET.Test.Sdk" Version="[16.2.0]" />
+    <PackageReference Update="Microsoft.VisualStudio.Setup.Configuration.Interop" Version="[1.16.30]" />
+    <PackageReference Update="Moq" Version="[4.7.145]" />  <!-- Keeping at 4.7; >=4.8 requires System.Threading.Tasks.Extensions which then demands System.Runtime 4.0.0.0. -->
+    <PackageReference Update="MsTest.TestAdapter" Version="[1.4.0]" />
+    <PackageReference Update="MsTest.TestFramework" Version="[1.4.0]" />
+    <PackageReference Update="System.Collections.Immutable" Version="[1.5.0]" />
+    <PackageReference Update="System.Threading.Tasks.Dataflow" Version="[4.9.0]" />
+  </ItemGroup>
+
+  <ItemGroup Label="Packages to add to all projects">
+    <!--
+      To reference a package in all projects, add it to this list.  Be sure to specify also specify a PackageVersion above.
+    -->
+    <GlobalPackageReference Include="Microsoft.Build.Artifacts" Version="2.0.1" Condition=" '$(EnableMicrosoftBuildArtifacts)' != 'false' " />
+    <GlobalPackageReference Include="SlnGen" Version="2.2.28" Condition=" '$(EnableSlnGen)' != 'false' " />
+  </ItemGroup>
+
+</Project>

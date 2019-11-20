@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This targets file is included by Microsoft.Common.targets and is therefore included in each *proj file -->
+<Project>
+  <Sdk Name="Microsoft.Build.CentralPackageVersions" />
+  <Sdk Name="KluGet.Build.Sdk" />
+</Project>

@@ -1,0 +1,65 @@
+<Project>
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+
+    <!-- NuGet generates the assets file, g.props, and g.targets to MSBuildProjectExtensionsPath. -->
+    <MSBuildProjectExtensionsPath>$(MSBuildProjectDirectory)\.pkgrefgen\</MSBuildProjectExtensionsPath>
+
+    <!-- .net 4.5 warns on this...we're just going to ignore, though we could set process specific (in .wrap package) instead -->
+    <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
+
+    <TreatWarningsAsErrors Condition="'$(TreatWarningsAsErrors)' == ''">true</TreatWarningsAsErrors>
+    <WarningLevel Condition="'$(WarningLevel)' == ''">4</WarningLevel>
+
+    <TargetFrameworkVersion Condition=" '$(TargetFrameworkVersion)' == '' and '$(UsingMicrosoftNETSdk)' != 'true' ">v4.7.2</TargetFrameworkVersion>
+    <TargetFramework Condition=" '$(TargetFramework)' == '' and '$(UsingMicrosoftNETSdk)' == 'true' ">net472</TargetFramework>
+
+    <!-- Produce deterministic binaries -->
+    <Deterministic>true</Deterministic>
+
+    <SlnGenGlobalProperties>ExcludeRestorePackageImports=true;Platform=x64</SlnGenGlobalProperties>
+
+    <!-- Use the latest version of C# available -->
+    <LangVersion>Latest</LangVersion>
+
+    <!--
+      Legacy-style projects never set PlatformTarget and the default in Csc is AnyCPU.
+      SDK-style projects infer PlatformTarget from Platform.
+      This causes Legacy-style EXEs which reference SDK-style libraries to not be able to load them.
+      Set PlatformTarget here explicitly to mimic Legacy-style behavior. Many projects override this themselves.
+    -->
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    
+    <!-- NuProj projects do not support PackageReference out-of-the-box but we use them anyway, enable central package versions for them as well -->
+    <EnableCentralPackageVersions Condition="'$(MSBuildProjectExtension)' == '.nuproj'">true</EnableCentralPackageVersions>
+
+  </PropertyGroup>
+
+  <!-- Without the following, x64 platform cannot be selected for managed projects in VS Configuration Manager UI -->
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" />
+
+  <!-- Standard Debug PropertyGroup from VS template -->
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <DefineConstants>$(DefineConstants);DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+
+  <!-- Standard Release PropertyGroup from VS template -->
+  <PropertyGroup Condition=" '$(Configuration)' != 'Debug' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <DefineConstants>$(DefineConstants);TRACE</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <SlnGenSolutionItem Include="$(EnlistmentRoot)\CloudBuild.json" />
+    <SlnGenSolutionItem Include="$(EnlistmentRoot)\Directory.Build.props" />
+    <SlnGenSolutionItem Include="$(EnlistmentRoot)\Directory.Build.targets" />
+    <SlnGenSolutionItem Include="$(EnlistmentRoot)\Packages.props" />
+  </ItemGroup>
+
+</Project>

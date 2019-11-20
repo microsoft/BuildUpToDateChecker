@@ -1,0 +1,10 @@
+{
+  // Defines version of MSBuild project SDKs to use
+  // https://docs.microsoft.com/en-us/visualstudio/msbuild/how-to-use-project-sdk?view=vs-2017#how-project-sdks-are-resolved
+  "msbuild-sdks": {
+    "KluGet.Build.Sdk": "1.0.48-preview",
+    "Microsoft.Build.CentralPackageVersions": "2.0.39",
+    "Microsoft.Build.NoTargets": "1.0.85",
+    "Microsoft.Build.Traversal": "2.0.19"
+  }
+}
