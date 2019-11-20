@@ -9,6 +9,8 @@ The BuildUpToDateChecker is a tool that will help catch common incremental build
 
 This code is based on the [Visual Studio project system](https://github.com/dotnet/project-system/blob/c2c17ed3423a797fda4bab9fa71442006ace373e/src/Microsoft.VisualStudio.ProjectSystem.Managed/ProjectSystem/UpToDate/BuildUpToDateCheck.cs) code to closely mimic Visual Studio's behavior in determining the "up-to-date" status of a project, but in a stand alone tool.
 
+**Note that this code is provided as-is as a proof-of-concept! No guarantees are given.**
+
 # Usage
 
 NOTE: The BuildUpToDateChecker tool uses a feature (project graph generation) requiring MSBuild 16.4 which is currently in preview. You can download this preview [here](https://docs.microsoft.com/en-us/visualstudio/releases/2019/release-notes-preview). If you have multiple installations (or aren't using a Visual Studio Command Prompt), be sure to use the `--msbuild` argument to point to this version.
