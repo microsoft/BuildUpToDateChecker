@@ -61,7 +61,7 @@ namespace BuildUpToDateChecker.Tests
             var logger = new TestLogger();
             string path = Path.GetTempFileName();
             string usedPath = Program.SetUpMsBuildAssemblyResolution(logger, path);
-            Assert.AreEqual(usedPath, Path.GetDirectoryName(path));
+            Assert.AreEqual(Path.GetDirectoryName(path), usedPath);
         }
 
         [TestMethod]
@@ -98,8 +98,8 @@ namespace BuildUpToDateChecker.Tests
             Assert.IsNotNull(properties);
             Assert.IsTrue(properties.ContainsKey("Configuration"));
             Assert.IsTrue(properties.ContainsKey("Platform"));
-            Assert.AreEqual(properties["Configuration"], "debug");
-            Assert.AreEqual(properties["Platform"], "x64");
+            Assert.AreEqual("debug", properties["Configuration"], true);
+            Assert.AreEqual("AnyCPU", properties["Platform"]);
         }
 
         [TestMethod]
@@ -113,14 +113,14 @@ namespace BuildUpToDateChecker.Tests
             // These should not have been removed.
             Assert.IsTrue(properties.ContainsKey("Configuration"));
             Assert.IsTrue(properties.ContainsKey("Platform"));
-            Assert.AreEqual(properties["Configuration"], "debug");
-            Assert.AreEqual(properties["Platform"], "x64");
+            Assert.AreEqual("debug", properties["Configuration"], true);
+            Assert.AreEqual("AnyCPU", properties["Platform"]);
 
             // These should have been added.
             Assert.IsTrue(properties.ContainsKey("foo"));
             Assert.IsTrue(properties.ContainsKey("bar"));
-            Assert.AreEqual(properties["foo"], "bar");
-            Assert.AreEqual(properties["bar"], "baz");
+            Assert.AreEqual("bar", properties["foo"]);
+            Assert.AreEqual("baz", properties["bar"]);
         }
 
         [TestMethod]
@@ -134,8 +134,8 @@ namespace BuildUpToDateChecker.Tests
             // These should have been overridden.
             Assert.IsTrue(properties.ContainsKey("Configuration"));
             Assert.IsTrue(properties.ContainsKey("Platform"));
-            Assert.AreEqual(properties["Configuration"], "Retail");
-            Assert.AreEqual(properties["Platform"], "ARM");
+            Assert.AreEqual("Retail", properties["Configuration"]);
+            Assert.AreEqual("ARM", properties["Platform"]);
         }
 
         [TestMethod]

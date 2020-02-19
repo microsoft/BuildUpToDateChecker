@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 
+using System;
 using System.Collections.Generic;
 
 namespace BuildUpToDateChecker.BuildChecks
@@ -9,6 +10,26 @@ namespace BuildUpToDateChecker.BuildChecks
     /// </summary>
     internal class BuildCheckProvider : IBuildCheckProvider
     {
+        private static HashSet<string> ItemTypesForUpToDateCheckInput = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "SplashScreen",
+            "CodeAnalysisDictionary",
+            "Resource",
+            "DesignDataWithDesignTimeCreatableTypes",
+            "ApplicationDefinition",
+            "EditorConfigFiles",
+            "Fakes",
+            "EmbeddedResource",
+            "EntityDeploy",
+            "Compile",
+            "Content",
+            "DesignData",
+            "AdditionalFiles",
+            "XamlAppDef",
+            "None",
+            "Page"
+        };
+
         /// <summary>
         /// Returns all of the build checks that are:
         ///     a. In this assembly,
@@ -21,8 +42,8 @@ namespace BuildUpToDateChecker.BuildChecks
         {
             return new IBuildCheck[]
             {
-                new CheckAlwaysCopyToOutput(), 
-                new CheckAreCopyToOutputDirectoryFilesValid(), 
+                new CheckAlwaysCopyToOutput(ItemTypesForUpToDateCheckInput), 
+                new CheckAreCopyToOutputDirectoryFilesValid(ItemTypesForUpToDateCheckInput), 
                 new CheckCopyUpToDateMarkersValid(),
                 new CheckOutputsAreValid(), 
                 new CheckUpToDateCheckBuiltItems()

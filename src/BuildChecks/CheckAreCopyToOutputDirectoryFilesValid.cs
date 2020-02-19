@@ -13,6 +13,13 @@ namespace BuildUpToDateChecker.BuildChecks
     /// </summary>
     internal class CheckAreCopyToOutputDirectoryFilesValid : IBuildCheck
     {
+        private readonly HashSet<string> _itemTypesForUpToDateCheckInput;
+
+        public CheckAreCopyToOutputDirectoryFilesValid(HashSet<string> itemTypesForUpToDateCheckInput)
+        {
+            _itemTypesForUpToDateCheckInput = itemTypesForUpToDateCheckInput ?? throw new ArgumentNullException(nameof(itemTypesForUpToDateCheckInput));
+        }
+
         public bool Check(ProjectBuildCheckContext context, out string failureMessage)
         {
             context.Logger.LogVerbose(string.Empty);
@@ -20,7 +27,9 @@ namespace BuildUpToDateChecker.BuildChecks
 
             IEnumerable<ProjectItemInstance> items = context.Instance.Items.Where(i => i.HasMetadata("CopyToOutputDirectory") && i.GetMetadataValue("CopyToOutputDirectory").Equals("PreserveNewest", StringComparison.OrdinalIgnoreCase));
 
-            foreach (ProjectItemInstance item in items)
+            IEnumerable<ProjectItemInstance> itemsUpToDateCheckInput = items.Where(i => _itemTypesForUpToDateCheckInput.Contains(i.ItemType));
+
+            foreach (ProjectItemInstance item in itemsUpToDateCheckInput)
             {
                 var rootedPath = item.GetMetadataValue("FullPath");
                 var link = item.GetMetadataValue("Link");

@@ -4,6 +4,7 @@ using BuildUpToDateChecker.BuildChecks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace BuildUpToDateChecker.Tests
@@ -11,6 +12,26 @@ namespace BuildUpToDateChecker.Tests
     [TestClass]
     public class ProjectAnalyzerTests
     {
+        private static HashSet<string> ItemTypesForUpToDateCheckInput = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "SplashScreen",
+            "CodeAnalysisDictionary",
+            "Resource",
+            "DesignDataWithDesignTimeCreatableTypes",
+            "ApplicationDefinition",
+            "EditorConfigFiles",
+            "Fakes",
+            "EmbeddedResource",
+            "EntityDeploy",
+            "Compile",
+            "Content",
+            "DesignData",
+            "AdditionalFiles",
+            "XamlAppDef",
+            "None",
+            "Page"
+        };
+
         #region Constructor Tests...
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
@@ -61,7 +82,7 @@ namespace BuildUpToDateChecker.Tests
                 filesToCreate: new string[] { "MyContent.js" });
 
             var checks = new Mock<IBuildCheckProvider>(MockBehavior.Strict);
-            checks.Setup(c => c.GetBuildChecks()).Returns(new IBuildCheck[] { new CheckAlwaysCopyToOutput() });
+            checks.Setup(c => c.GetBuildChecks()).Returns(new IBuildCheck[] { new CheckAlwaysCopyToOutput(ItemTypesForUpToDateCheckInput) });
 
             bool isUpToDate = ProjectAnalyzerIsUpToDateCall(
                 projectFile,
@@ -72,6 +93,24 @@ namespace BuildUpToDateChecker.Tests
         }
 
         [TestMethod]
+        public void TestAlwaysCopyToOutputDirectoryWithNonUpToDateInputItem_AlwaysIsUpToDate()
+        {
+            string projectFile = TestUtilities.CreateTestProject(
+                rawMsBuildXmlToInsert: "<ItemGroup><AnyNonUpToDateInputItem Include='MyContent.js'><CopyToOutputDirectory>Always</CopyToOutputDirectory></AnyNonUpToDateInputItem></ItemGroup>",
+                filesToCreate: new string[] { "MyContent.js" });
+
+            var checks = new Mock<IBuildCheckProvider>(MockBehavior.Strict);
+            checks.Setup(c => c.GetBuildChecks()).Returns(new IBuildCheck[] { new CheckAlwaysCopyToOutput(ItemTypesForUpToDateCheckInput) });
+
+            bool isUpToDate = ProjectAnalyzerIsUpToDateCall(
+                projectFile,
+                logger: new Mock<ILogger>().Object,
+                checks: checks.Object);
+
+            Assert.IsTrue(isUpToDate);
+        }
+
+        [TestMethod]
         public void TestAlwaysCopyToOutputDirectory_NeverIsUpToDate()
         {
             string projectFile = TestUtilities.CreateTestProject(
@@ -79,7 +118,7 @@ namespace BuildUpToDateChecker.Tests
                 filesToCreate: new string[] { "MyContent.js" });
 
             var checks = new Mock<IBuildCheckProvider>(MockBehavior.Strict);
-            checks.Setup(c => c.GetBuildChecks()).Returns(new IBuildCheck[] { new CheckAlwaysCopyToOutput() });
+            checks.Setup(c => c.GetBuildChecks()).Returns(new IBuildCheck[] { new CheckAlwaysCopyToOutput(ItemTypesForUpToDateCheckInput) });
 
             bool isUpToDate = ProjectAnalyzerIsUpToDateCall(
                 projectFile,
@@ -99,7 +138,7 @@ namespace BuildUpToDateChecker.Tests
                 rawMsBuildXmlToInsert: "<ItemGroup><Content Include='MyContent.js'><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></Content></ItemGroup>");
 
             var checks = new Mock<IBuildCheckProvider>(MockBehavior.Strict);
-            checks.Setup(c => c.GetBuildChecks()).Returns(new IBuildCheck[] { new CheckAreCopyToOutputDirectoryFilesValid() });
+            checks.Setup(c => c.GetBuildChecks()).Returns(new IBuildCheck[] { new CheckAreCopyToOutputDirectoryFilesValid(ItemTypesForUpToDateCheckInput) });
 
             bool isUpToDate = ProjectAnalyzerIsUpToDateCall(
                 projectFile,
@@ -117,7 +156,7 @@ namespace BuildUpToDateChecker.Tests
                 filesToCreate: new string[] { "MyContent.js" });
 
             var checks = new Mock<IBuildCheckProvider>(MockBehavior.Strict);
-            checks.Setup(c => c.GetBuildChecks()).Returns(new IBuildCheck[] { new CheckAreCopyToOutputDirectoryFilesValid() });
+            checks.Setup(c => c.GetBuildChecks()).Returns(new IBuildCheck[] { new CheckAreCopyToOutputDirectoryFilesValid(ItemTypesForUpToDateCheckInput) });
 
             bool isUpToDate = ProjectAnalyzerIsUpToDateCall(
                 projectFile,
@@ -135,7 +174,7 @@ namespace BuildUpToDateChecker.Tests
                 filesToCreate: new string[] { "MyContent.js", "bin\\Debug\\net472\\MyContent.js" });
 
             var checks = new Mock<IBuildCheckProvider>(MockBehavior.Strict);
-            checks.Setup(c => c.GetBuildChecks()).Returns(new IBuildCheck[] { new CheckAreCopyToOutputDirectoryFilesValid() });
+            checks.Setup(c => c.GetBuildChecks()).Returns(new IBuildCheck[] { new CheckAreCopyToOutputDirectoryFilesValid(ItemTypesForUpToDateCheckInput) });
 
             bool isUpToDate = ProjectAnalyzerIsUpToDateCall(
                 projectFile,
@@ -153,7 +192,7 @@ namespace BuildUpToDateChecker.Tests
                 filesToCreate: new string[] { "bin\\Debug\\net472\\MyContent.js", "MyContent.js" });
 
             var checks = new Mock<IBuildCheckProvider>(MockBehavior.Strict);
-            checks.Setup(c => c.GetBuildChecks()).Returns(new IBuildCheck[] { new CheckAreCopyToOutputDirectoryFilesValid() });
+            checks.Setup(c => c.GetBuildChecks()).Returns(new IBuildCheck[] { new CheckAreCopyToOutputDirectoryFilesValid(ItemTypesForUpToDateCheckInput) });
 
             bool isUpToDate = ProjectAnalyzerIsUpToDateCall(
                 projectFile,
@@ -161,6 +200,24 @@ namespace BuildUpToDateChecker.Tests
                 checks: checks.Object);
 
             Assert.IsFalse(isUpToDate);
+        }
+
+        [TestMethod]
+        public void TestAreCopyToOutputDirectoryFilesValid_MissingOutputForNonUpToDateInputItem()
+        {
+            string projectFile = TestUtilities.CreateTestProject(
+                rawMsBuildXmlToInsert: "<ItemGroup><NonUpToDateInputItem Include='MyContent.js'><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></NonUpToDateInputItem></ItemGroup>",
+                filesToCreate: new string[] { "MyUpToDateInputItem.js" });
+
+            var checks = new Mock<IBuildCheckProvider>(MockBehavior.Strict);
+            checks.Setup(c => c.GetBuildChecks()).Returns(new IBuildCheck[] { new CheckAreCopyToOutputDirectoryFilesValid(ItemTypesForUpToDateCheckInput) });
+
+            bool isUpToDate = ProjectAnalyzerIsUpToDateCall(
+                projectFile,
+                logger: new Mock<ILogger>().Object,
+                checks: checks.Object);
+
+            Assert.IsTrue(isUpToDate);
         }
         #endregion
 

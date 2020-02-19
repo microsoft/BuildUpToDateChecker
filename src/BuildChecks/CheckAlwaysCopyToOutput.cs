@@ -2,6 +2,8 @@
 
 using Microsoft.Build.Execution;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace BuildUpToDateChecker.BuildChecks
 {
@@ -10,12 +12,21 @@ namespace BuildUpToDateChecker.BuildChecks
     /// </summary>
     internal class CheckAlwaysCopyToOutput : IBuildCheck
     {
+        private readonly HashSet<string> _itemTypesForUpToDateCheckInput;
+
+        public CheckAlwaysCopyToOutput(HashSet<string> itemTypesForUpToDateCheckInput)
+        {
+            _itemTypesForUpToDateCheckInput = itemTypesForUpToDateCheckInput ?? throw new ArgumentNullException(nameof(itemTypesForUpToDateCheckInput));
+        }
+
         public bool Check(ProjectBuildCheckContext context, out string failureMessage)
         {
             context.Logger.LogVerbose(string.Empty);
             context.Logger.LogVerbose("CheckAlwaysCopyToOutput:");
 
-            foreach (ProjectItemInstance a in context.Instance.Items)
+            IEnumerable<ProjectItemInstance> itemsUpToDateCheckInput = context.Instance.Items.Where(i => _itemTypesForUpToDateCheckInput.Contains(i.ItemType));
+
+            foreach (ProjectItemInstance a in itemsUpToDateCheckInput)
             {
                 if (a.HasMetadata("CopyToOutputDirectory") && a.GetMetadataValue("CopyToOutputDirectory").Equals("Always", StringComparison.OrdinalIgnoreCase))
                 {
